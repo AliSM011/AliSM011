@@ -1,0 +1,258 @@
+//@version=4
+
+study("Super Volume Indicator",overlay=false)
+//volume trend
+use2bars=true
+lookback=50
+range = high-low+0.000000001                                                        
+range2= (highest(high,2)-lowest(low,2))+0.000000001 
+float value1=na
+value1:= close > open and range != 0 ? (range/(2*range+open-close))*volume : value1
+value1:= close < open and range != 0 ? ((range+close-open)/(2*range+close-open))*volume: value1
+value1:= close == open ? 0.5*volume:value1                                       //value1 is up volume 
+value2 = volume-value1                                                           //value2 is down volume
+
+//using only one bar
+value3 = abs(value1+value2)
+value4 = value1*range
+value5 = (value1-value2)*range
+value6 = value2*range
+value7 = (value2-value1)*range
+
+value8  = value1/range          
+value9  = (value1-value2)/range 
+value10 = value2/range          
+value11 = (value2-value1)/range 
+value12 = value3/range          
+
+// Using two bars 
+value13 = use2bars?( value3+value3[1]):na
+value14 = use2bars?(value1+value1[1])*range2:na
+value15 = use2bars?(value1+value1[1]-value2-value2[1])*range2:na
+value16 = use2bars?(value2+value2[1])*range2:na
+value17 = use2bars?(value2+value2[1]-value1-value1[1])*range2:na
+
+value18 = use2bars ? (value1+value1[1])/range2:na
+value19 = use2bars ? (value1+value1[1]-value2-value2[1])/range2:na
+value20 = use2bars ? (value2+value2[1])/range2:na
+value21 = use2bars ? (value2+value2[1]-value1-value1[1])/range2:na
+value22 = use2bars ? value13/range2:na
+
+// one bar conditions
+condition1 = value3 == lowest(value3,lookback)
+condition2 = value4 == highest(value4,lookback) and close > open
+condition3 = value5 == highest(value5,lookback) and close > open
+condition4 = value6 == highest(value6,lookback) and close < open
+condition5 = value7 == highest(value7,lookback) and close < open
+condition6 = value8 == lowest(value8,lookback) and close < open
+condition7 = value9 == lowest(value9,lookback) and close < open
+condition8 = value10 == lowest(value10,lookback) and close > open
+condition9 = value11 == lowest(value11,lookback) and close > open
+condition10 = value12 == highest(value12,lookback)
+
+// two bar conditions
+condition11 = use2bars and value13 == lowest(value13,lookback)
+condition12 = use2bars and value14 == highest(value14,lookback) and close > open and close[1] > open[1]
+condition13 = use2bars and value15 == highest(value15,lookback) and close > open and close[1] > open[1]
+condition14 = use2bars and value16 == highest(value16,lookback) and close < open and close[1] < open[1]
+condition15 = use2bars and value17 == highest(value17,lookback) and close < open and close[1] < open[1]
+condition16 = use2bars and value18 == lowest(value18,lookback) and close < open and close[1] < open[1]
+condition17 = use2bars and value19 == lowest(value19,lookback) and close < open and close[1] < open[1]
+condition18 = use2bars and value20 == lowest(value20,lookback) and close > open and close[1] > open[1]
+condition19 = use2bars and value21 == lowest(value21,lookback) and close > open and close[1] > open[1]
+condition20 = use2bars and value22 == highest(value22,lookback)
+
+//Classifying the bars using one bar conditions, or using both one bar and two bar conditions simultaneosly if "use2bars" button selected.
+ 
+lowvolume  = (condition1 or condition11) 
+climaxupvolume = (condition2 or condition3 or condition8 or condition9 or condition12 or condition13 or condition18 or condition19) 
+climaxdownvolume = (condition4 or condition5 or condition6 or condition7 or condition14 or condition15 or condition16 or condition17) 
+churnvolume =  (condition10 or condition20) 
+climaxchurnvolume =  (condition10 or condition20) and (condition2 or condition3 or condition4 or condition5 or condition6 or condition7 or condition8 or condition9 or condition12 or condition13 or condition14 or condition15 or condition16 or condition17 or condition18 or condition19) 
+
+trend5=1
+supplyline=high
+supportline=low
+trend5:=barstate.isfirst?1:close>nz(supplyline[1])?1:close<nz(supportline[1])?-1:nz(trend5[1])
+
+supplyline:= trend5==1?climaxdownvolume?highest(2): high>supplyline[1]?high: supplyline[1]:   climaxdownvolume?highest(2): supplyline[1]
+
+supportline:= trend5==-1? climaxupvolume? lowest(2): low<supportline[1]?low: supportline[1] :   climaxupvolume?lowest(2):  supportline[1]
+                   
+                 
+
+trailing=trend5==-1?supportline:supplyline
+trailing1=trend5==1?supportline:supplyline
+
+volumetrend=trailing>trailing1? 4 : -4
+
+//OBV 1
+N1 = 10
+N2 = 10
+
+//OBV is calculated
+src1 = close
+OBV = cum(sign(change(src1)) * volume)
+//Oscillator is calculated
+OUT = ema(((OBV-ema(OBV,N1)) / (0.015 * ema(abs(OBV-ema(OBV,N1)),N1))), N2)
+obv1=OUT>0? 2 : -2
+//obv nv
+rc = close
+
+Leng = 15
+
+nv = change(rc) > 0 ? volume : change(rc) < 0 ? -volume : 0*volume 
+cnv = cum(nv) 
+cnv_tb = cnv - sma(cnv,Leng) 
+
+obvnv= cnv_tb>0? 2 : -2
+
+//kama volume
+length = 14,prefiltering = false
+//----
+er = abs(change(volume,length))/sum(abs(change(volume)),length)
+kama(x)=>
+    a = 0.
+    a := er*x+(1-er)*nz(a[1],x)
+st(x)=>sqrt(kama(x*x) - pow(kama(x),2))
+//----
+src = close
+n = bar_index
+a = kama(n*src) - kama(n)*kama(src)
+b = st(n)*st(src)
+x = a-b/volume
+kavol=x > 0 ? 2 : -2
+
+//vpt
+hilow = ((high - low)*100)
+openclose = ((close - open)*100)
+vol1 = (volume / hilow)
+spreadvol = (openclose * vol1)
+VPT = spreadvol + cum(spreadvol)
+window_len = 28
+
+v_len = 14
+price_spread = stdev(high-low, window_len)
+
+vp =  spreadvol + cum(spreadvol)
+smooth = sma(vp, v_len)
+v_spread = stdev(vp - smooth, window_len)
+shadow = (vp - smooth) / v_spread * price_spread
+
+out1 = shadow > 0 ? high + shadow : low + shadow
+
+//plot(out, style=line,linewidth=3, color=color)
+len=3
+vpt=ema(out1,len)
+vpt1=vpt > close ? 2 : -2
+
+//
+//weis
+trendDetectionLength =4
+float trend = na
+float wave = na
+float vol = na
+mov = close>close[1] ? 1 : close<close[1] ? -1 : 0
+trend := (mov != 0) and (mov != mov[1]) ? mov : nz(trend[1])
+isTrending = rising(close, trendDetectionLength) or falling(close, trendDetectionLength)
+wave := (trend != nz(wave[1])) and isTrending ? trend : nz(wave[1])
+vol := wave == wave[1] ? (nz(vol[1])+volume) : volume
+up1 = wave == 1 ? vol : 0
+dn1 = wave == 1 ? 0 : vol
+Weis= up1 > dn1 ? 2 : -2
+//vwap
+avlength = 21
+av = sma(vwap,avlength)
+vwap1 = close > av ? 2 : -2
+
+//
+f_draw_infopanel(_x, _y, _line, _text, _color)=>
+    _rep_text = ""
+    for _l = 0 to _line
+        _rep_text := _rep_text + "\n"
+    _rep_text := _rep_text + _text
+    var label _la = na
+    label.delete(_la)
+    _la := label.new(
+         x=_x, y=_y, 
+         text=_rep_text, xloc=xloc.bar_time, yloc=yloc.price, 
+         color=color.black, style=label.style_labelup, textcolor=_color, size=size.normal)
+
+
+
+//
+totalpoints =Weis+vpt1+kavol+obvnv+obv1+volumetrend+vwap1
+//
+piz=input(1)
+tt=sma(totalpoints,piz)
+plot(0)
+plot(10,linewidth=2)
+plot(-10,linewidth=2)
+plot(tt,style=plot.style_stepline,color=color.black,linewidth=2)
+//
+zero=0
+ten=10
+minus10=-10
+down = crossunder(tt, 10) 
+up = crossover(tt, -10) 
+crossup=crossover(tt, 0)
+crossdn=crossunder(tt, 0)
+plot(up  ?minus10 :na, style=plot.style_cross, color=color.blue, linewidth=2, transp=0)
+plot(down ?ten :na, style=plot.style_cross, color=color.red, linewidth=2, transp=0)
+plot(crossup  ?zero :na, style=plot.style_circles, color=color.green, linewidth=3, transp=0)
+plot(crossdn ?zero :na, style=plot.style_circles, color=color.orange, linewidth=3, transp=0)
+//
+/////// Alerts /////
+alertcondition(crossunder(tt, 0) ,title="sell2")
+alertcondition(crossover(tt, 0),title="buy2")
+alertcondition(crossunder(tt, 10),title="sell1")
+alertcondition(crossover(tt, -10),title=" Buy1")
+//code for linear taken from pine script manual
+
+multiplier = input(title="Volume Deviation", type=input.float, defval=2, minval=1)
+src5 = tt
+len5 = input(100)
+offset = 0
+
+calcSlope(src5, len5) =>
+    sumX = 0.0
+    sumY = 0.0
+    sumXSqr = 0.0
+    sumXY = 0.0
+    for i = 1 to len5
+        val = src5[len5-i]
+        per = i + 1.0
+        sumX := sumX + per
+        sumY := sumY + val
+        sumXSqr := sumXSqr + per * per
+        sumXY := sumXY + val * per
+        
+        
+    slope = (len5 * sumXY - sumX * sumY) / (len5 * sumXSqr - sumX * sumX)
+    average = sumY / len5
+    intercept = average - slope * sumX / len5 + slope
+    [slope, average, intercept]
+
+var float tmp = na
+[s, a5, i] = calcSlope(src5, len5)
+
+tt1=(i + s * (len5 - offset))
+sdev = stdev(tt, len5)
+dev = multiplier * sdev
+top=tt1+dev
+bott=tt1-dev
+calculationToPlotAverageMeanLine=tt1
+useUpperDeviation = input(false, "Upper Deviation", input.bool)
+useLowerDeviation = input(false, "Lower Deviation", input.bool)
+
+
+
+calculationToPlotUpperLine=top
+calculationToPlotLowerLine=bott
+
+plotUpperDeviationLine = plot(not useUpperDeviation ? na : calculationToPlotUpperLine, color=color.blue)
+plotAverageMeanLine = plot(calculationToPlotAverageMeanLine, color=color.olive)
+plotLowererDeviationLine = plot(not useLowerDeviation ? na : calculationToPlotLowerLine, color=color.red)
+fill(plotUpperDeviationLine, plotAverageMeanLine, color=color.lime)
+fill(plotLowererDeviationLine, plotAverageMeanLine, color=color.red)
+
