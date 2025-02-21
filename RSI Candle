@@ -8,7 +8,7 @@ rsi = down == 0 ? 100 : up == 0 ? 0 : 100 - (100 / (1 + up / down))
 
 //coloring method below
 
-src1 = open, len1 = input(90, minval=1, title="UpLevel")
+src1 = open, len1 = input(95, minval=1, title="UpLevel")
 src2 = open, len2 = input(30, minval=1, title="DownLevel")
 isup() => rsi > len1
 isdown() => rsi < len2
