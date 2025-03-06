@@ -24,10 +24,15 @@ isBB = maTypeInput == "Bollinger Bands"
 
 rsiPlot = plot(rsi, "RSI", color=#7E57C2)
 plot(rsiMA, "RSI-based MA", color=color.yellow)
-rsiUpperBand = hline(70, "RSI Upper Band", color=#787B86)
+rsiUpperBand1 = hline(95, "RSI Upper1 Band", color=#787B86)
+rsiUpperBand2 = hline(90, "RSI Upper2 Band", color=#787B86)
+rsiUpperBand3 = hline(85, "RSI Upper3 Band", color=#787B86)
 midline = hline(50, "RSI Middle Band", color=color.new(#787B86, 50))
-rsiLowerBand = hline(30, "RSI Lower Band", color=#787B86)
-fill(rsiUpperBand, rsiLowerBand, color=color.rgb(126, 87, 194, 90), title="RSI Background Fill")
+rsiLowerBand1 = hline(30, "RSI bbLower1 Band Band", color=#787B86)
+rsiLowerBand2 = hline(20, "RSI Lower2 Band", color=#787B86)
+rsiLowerBand3 = hline(10, "RSI Lower3 Band", color=#787B86)
+
+fill(rsiUpperBand1, rsiLowerBand3, color=color.rgb(126, 87, 194, 90), title="RSI Background Fill")
 bbUpperBand = plot(isBB ? rsiMA + ta.stdev(rsi, maLengthInput) * bbMultInput : na, title = "Upper Bollinger Band", color=color.green)
 bbLowerBand = plot(isBB ? rsiMA - ta.stdev(rsi, maLengthInput) * bbMultInput : na, title = "Lower Bollinger Band", color=color.green)
 fill(bbUpperBand, bbLowerBand, color= isBB ? color.new(color.green, 90) : na, title="Bollinger Bands Background Fill")
