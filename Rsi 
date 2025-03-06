@@ -1,0 +1,24 @@
+//@version=4
+study(title="EFFECTIVE RSI", shorttitle="EFFECTIVE_RSI", format=format.price, precision=2, resolution="")
+len = input(14, minval=1, title="Length")
+src = input(close, "Source", type = input.source)
+up = rma(max(change(src), 0), len)
+down = rma(-min(change(src), 0), len)
+rsi = down == 0 ? 100 : up == 0 ? 0 : 100 - (100 / (1 + up / down))
+plot(rsi, "RSI", color=#8E1599, linewidth=2)
+band1 = hline(60, "Upper Band", color=#C0C0C0)
+band0 = hline(20, "Lower Band", color=#C0C0C0)
+fill(band1, band0, color=color.red, transp=90, title="Background")
+
+band3 = hline(80, "Upper Band", color=#C0C0C0)
+band4 = hline(40, "Lower Band", color=#C0C0C0)
+fill(band3, band4, color=color.green, transp=90, title="Background")
+
+
+
+hline(50, title="Zero", color=color.black, linewidth=1, linestyle=hline.style_solid)
+
+hline(80, title="Zero", color=color.green, linewidth=2, linestyle=hline.style_solid)
+hline(60, title="Zero", color=color.red, linewidth=2, linestyle=hline.style_solid)
+hline(40, title="Zero", color=color.green, linewidth=2, linestyle=hline.style_solid)
+hline(20, title="Zero", color=color.red, linewidth=2, linestyle=hline.style_solid)
