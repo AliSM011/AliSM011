@@ -1,11 +1,11 @@
 // This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
 // © AliSamiei_1
 
-////// 📊 Telegram : @AliSamiei_Page 📊 @TrendAction_Channel
+///// 📊 Telegram : @AliSamiei_Page 📊 @TrendAction_Channel
 
 //@version=6
 
-indicator(title="Trend Action", shorttitle="Trend Action", format=format.price, precision=2, timeframe="", timeframe_gaps=true)
+indicator(title="Trend Action Index", shorttitle="TAI", format=format.price, precision=2, timeframe="", timeframe_gaps=true)
 
 ma(source, length, type) =>
     switch type
@@ -42,7 +42,7 @@ midline = hline(50, "RSI Middle Band", color=#0044ff)
 rsiLowerBand1 = hline(40, "RSI Lower Band", color=#0044ff)
 rsiLowerBand2 = hline(30, "RSI Lower Band", color=#36ff00)
 rsiLowerBand3 = hline(20, "RSI Lower Band", color=#36ff00)
-rsiLowerBand4 = hline(10, "RSI Lower Band", color=color.white)
+rsiLowerBand4 = hline(5, "RSI Lower Band", color=color.white)
 
 fill(rsiUpperBand1, rsiLowerBand4, color=color.rgb(126, 87, 194, 90), title="RSI Background Fill")
 bbUpperBand = plot(isBB ? rsiMA + ta.stdev(rsi, maLengthInput) * bbMultInput : na, title = "Upper Bollinger Band", color=color.green)
