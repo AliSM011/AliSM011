@@ -1,7 +1,7 @@
 // This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
 // © AliSamiei_1
 
-////// 📊 Telegram : @AliSamiei_Page 📊 @TrendAction_Channel
+///// 📊 Telegram : @AliSamiei_Page 📊 @TrendAction_Channel
 
 //@version=6
 
@@ -34,7 +34,7 @@ plot(rsiMA, "RSI-based MA", color=#ffeb3b)
 rsiUpperBand1 = hline(95, "RSI Upper Band", color=#ff0000)
 rsiUpperBand2 = hline(90, "RSI Upper Band", color=color.orange)
 rsiUpperBand3= hline(85, "RSI Upper Band", color=#ffeb3b)
-rsiUpperBand4 = hline(70, "RSI Upper Band", color=color.white)
+rsiUpperBand4 = hline(70, "RSI Upper Band", color=color.purple)
 rsiUpperBand5 = hline(60, "RSI Upper Band", color=color.white)
 
 midline = hline(50, "RSI Middle Band", color=#0044ff)
