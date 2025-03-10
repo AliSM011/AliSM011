@@ -1,54 +1,60 @@
-// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
-// © AliSamiei_1
-
-///// 📊 Telegram : @AliSamiei_Page 📊 @TrendAction_Channel
-
-//@version=6
-
-indicator(title="Trend Action Index", shorttitle="TAI", format=format.price, precision=2, timeframe="", timeframe_gaps=true)
-
-ma(source, length, type) =>
-    switch type
-        "SMA" => ta.sma(source, length)
-        "Bollinger Bands" => ta.sma(source, length)
-        "EMA" => ta.ema(source, length)
-        "SMMA (RMA)" => ta.rma(source, length)
-        "WMA" => ta.wma(source, length)
-        "VWMA" => ta.vwma(source, length)
-
-rsiLengthInput = input.int(14, minval=1, title="RSI Length", group="RSI Settings")
-rsiSourceInput = input.source(open, "Source", group="RSI Settings")
-maTypeInput = input.string("SMA", title="MA Type", options=["SMA", "Bollinger Bands", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group="MA Settings")
-maLengthInput = input.int(14, title="MA Length", group="MA Settings")
-bbMultInput = input.float(2.0, minval=0.001, maxval=50, title="BB StdDev", group="MA Settings")
-
-up = ta.rma(math.max(ta.change(rsiSourceInput), 0), rsiLengthInput)
-down = ta.rma(-math.min(ta.change(rsiSourceInput), 0), rsiLengthInput)
-rsi = down == 0 ? 100 : up == 0 ? 0 : 100 - (100 / (1 + up / down))
-rsiMA = ma(rsi, maLengthInput, maTypeInput)
-isBB = maTypeInput == "Bollinger Bands"
-
-rsiPlot = plot(rsi, "RSI", color=color.white)
-plot(rsiMA, "RSI-based MA", color=#ffeb3b)
-
-rsiUpperBand1 = hline(95, "RSI Upper Band", color=#ff0000)
-rsiUpperBand2 = hline(90, "RSI Upper Band", color=color.orange)
-rsiUpperBand3= hline(85, "RSI Upper Band", color=#ffeb3b)
-rsiUpperBand4 = hline(70, "RSI Upper Band", color=color.purple)
-rsiUpperBand5 = hline(60, "RSI Upper Band", color=color.white)
-
-midline = hline(50, "RSI Middle Band", color=#00e2ff)
-
-rsiLowerBand1 = hline(40, "RSI Lower Band", color=#00e2ff)
-rsiLowerBand2 = hline(30, "RSI Lower Band", color=#36ff00)
-rsiLowerBand3 = hline(20, "RSI Lower Band", color=#36ff00)
-rsiLowerBand4 = hline(5, "RSI Lower Band", color=color.blue)
-
-fill(rsiUpperBand1, rsiLowerBand4, color=color.rgb(126, 87, 194, 90), title="RSI Background Fill")
-bbUpperBand = plot(isBB ? rsiMA + ta.stdev(rsi, maLengthInput) * bbMultInput : na, title = "Upper Bollinger Band", color=color.green)
-bbLowerBand = plot(isBB ? rsiMA - ta.stdev(rsi, maLengthInput) * bbMultInput : na, title = "Lower Bollinger Band", color=color.green)
-fill(bbUpperBand, bbLowerBand, color= isBB ? color.new(color.green, 90) : na, title="Bollinger Bands Background Fill")
-
-midLinePlot = plot(50, color = na, editable = false, display = display.none)
-fill(rsiPlot, midLinePlot, 100, 80, top_color = color.new(color.red, 0), bottom_color = color.new(color.red, 100),  title = "Overbought Gradient Fill")
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/ 
+// © AliSamiei_1 
+ 
+///// 📊 Telegram : @AliSamiei_Page 📊 @TrendAction_Channel 
+ 
+//@version=6 
+ 
+indicator(title="Trend Action Index", shorttitle="TAI", format=format.price, precision=2, timeframe="", timeframe_gaps=true) 
+ 
+ma(source, length, type) => 
+    switch type 
+        "SMA" => ta.sma(source, length) 
+        "Bollinger Bands" => ta.sma(source, length) 
+        "EMA" => ta.ema(source, length) 
+        "SMMA (RMA)" => ta.rma(source, length) 
+        "WMA" => ta.wma(source, length) 
+        "VWMA" => ta.vwma(source, length) 
+ 
+rsiLengthInput = input.int(14, minval=1, title="RSI Length", group="RSI Settings") 
+rsiSourceInput = input.source(close, "Source", group="RSI Settings") 
+maTypeInput = input.string("SMA", title="MA Type", options=["SMA", "Bollinger Bands", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group="MA Settings") 
+maLengthInput = input.int(14, title="MA Length", group="MA Settings") 
+bbMultInput = input.float(2.0, minval=0.001, maxval=50, title="BB StdDev", group="MA Settings") 
+ 
+up = ta.rma(math.max(ta.change(rsiSourceInput), 0), rsiLengthInput) 
+down = ta.rma(-math.min(ta.change(rsiSourceInput), 0), rsiLengthInput) 
+rsi = down == 0 ? 100 : up == 0 ? 0 : 100 - (100 / (1 + up / down)) 
+rsiMA = ma(rsi, maLengthInput, maTypeInput) 
+isBB = maTypeInput == "Bollinger Bands" 
+ 
+rsiPlot = plot(rsi, "RSI", color=color.white) 
+ 
+plot(rsiMA, "RSI-based MA", color=#ffeb3b) 
+ 
+rsiUpperBand1 = hline(95, "RSI Upper Band", linewidth = 2 , color=#ff0000) 
+ 
+rsiUpperBand2 = hline(90, "RSI Upper Band", color=color.orange) 
+rsiUpperBand3= hline(85, "RSI Upper Band", color=#ffeb3b) 
+rsiUpperBand4 = hline(70, "RSI Upper Band", color=#e91e63) 
+rsiUpperBand5 = hline(00, "RSI Upper Band", color=color.white) 
+ 
+midline = hline(50, "RSI Middle Band", color=#0044ff) 
+ 
+rsiLowerBand1 = hline(40, "RSI Lower Band", color=#0044ff) 
+rsiLowerBand2 = hline(30, "RSI Lower Band", color=#36ff00) 
+rsiLowerBand3 = hline(20, "RSI Lower Band", color=#36ff00) 
+ 
+rsiLowerBand4 = hline(5, "RSI Lower Band", linewidth = 2 , color=#5c00ff) 
+ 
+fill(rsiUpperBand1, rsiLowerBand4, color=color.rgb(126, 87, 194, 90), title="RSI Background Fill") 
+ 
+bbUpperBand = plot(isBB ? rsiMA + ta.stdev(rsi, maLengthInput) * bbMultInput : na, title = "Upper Bollinger Band", color=color.green) 
+bbLowerBand = plot(isBB ? rsiMA - ta.stdev(rsi, maLengthInput) * bbMultInput : na, title = "Lower Bollinger Band", color=color.green) 
+ 
+fill(bbUpperBand, bbLowerBand, color= isBB ? color.new(color.green, 90) : na, title="Bollinger Bands Background Fill") 
+ 
+midLinePlot = plot(50, color = na, editable = false, display = display.none) 
+ 
+fill(rsiPlot, midLinePlot, 100, 80, top_color = color.new(color.red, 0), bottom_color = color.new(color.red, 100),  title = "Overbought Gradient Fill") 
 fill(rsiPlot, midLinePlot, 40,  0,  top_color = color.new(color.green, 100), bottom_color = color.new(color.green, 0),      title = "Oversold Gradient Fill")
