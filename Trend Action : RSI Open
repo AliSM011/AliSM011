@@ -37,12 +37,12 @@ rsiUpperBand3= hline(85, "RSI Upper Band", color=#ffeb3b)
 rsiUpperBand4 = hline(70, "RSI Upper Band", color=color.purple)
 rsiUpperBand5 = hline(60, "RSI Upper Band", color=color.white)
 
-midline = hline(50, "RSI Middle Band", color=#0044ff)
+midline = hline(50, "RSI Middle Band", color=#00e2ff)
 
-rsiLowerBand1 = hline(40, "RSI Lower Band", color=#0044ff)
+rsiLowerBand1 = hline(40, "RSI Lower Band", color=#00e2ff)
 rsiLowerBand2 = hline(30, "RSI Lower Band", color=#36ff00)
 rsiLowerBand3 = hline(20, "RSI Lower Band", color=#36ff00)
-rsiLowerBand4 = hline(5, "RSI Lower Band", color=color.white)
+rsiLowerBand4 = hline(5, "RSI Lower Band", color=color.blue)
 
 fill(rsiUpperBand1, rsiLowerBand4, color=color.rgb(126, 87, 194, 90), title="RSI Background Fill")
 bbUpperBand = plot(isBB ? rsiMA + ta.stdev(rsi, maLengthInput) * bbMultInput : na, title = "Upper Bollinger Band", color=color.green)
