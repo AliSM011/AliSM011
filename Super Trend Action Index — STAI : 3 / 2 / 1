@@ -1,0 +1,55 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © AliSamiei_1
+
+///// 📊 Telegram : @AliSamiei_Page 📊 @TrendAction_Channel
+
+
+//@version=6
+indicator(title = 'Super Trend Action Index', shorttitle = 'STAI', overlay = true, format = format.price, precision = 2, timeframe = '' )
+
+Periods = input(title = 'ATR Period', defval = 10)
+src = input(close, title = 'Source')
+Multiplier = input.float(title = 'ATR Multiplier', step = 0.1, defval = 2.0)
+changeATR = input(title = 'Change ATR Calculation Method ?', defval = true)
+showsignals = input(title = 'Show Buy/Sell Signals ?', defval = true)
+highlighting = input(title = 'Highlighter On/Off ?', defval = true)
+
+atr2 = ta.sma(ta.tr, Periods)
+atr = changeATR ? ta.atr(Periods) : atr2
+up = src - Multiplier * atr
+up1 = nz(up[1], up)
+up := close[1] > up1 ? math.max(up, up1) : up
+dn = src + Multiplier * atr
+dn1 = nz(dn[1], dn)
+dn := close[1] < dn1 ? math.min(dn, dn1) : dn
+
+trend = 1
+trend := nz(trend[1], trend)
+trend := trend == -1 and close > dn1 ? 1 : trend == 1 and close < up1 ? -1 : trend
+
+upPlot = plot(trend == 1 ? up : na, title = 'Up Trend', style = plot.style_linebr, linewidth = 2, color = color.new(#36ff00, 0))
+buySignal = trend == 1 and trend[1] == -1
+
+
+plotshape(buySignal and showsignals ? up : na, title = 'Buy', location = location.absolute, style = shape.triangleup, size = size.tiny, color = #000000)
+
+dnPlot = plot(trend == 1 ? na : dn, title = 'Down Trend', style = plot.style_linebr, linewidth = 2, color = #ff0000)
+sellSignal = trend == -1 and trend[1] == 1
+
+plotshape(sellSignal and showsignals ? dn : na, title = 'Sell', location = location.absolute, style = shape.triangledown, size = size.tiny, color = color.white)
+
+mPlot = plot(close, title = '')
+
+longFillColor = highlighting ? trend == 1 ? #000000 : color.black : color.black
+
+shortFillColor = highlighting ? trend == -1 ? #ff0000 : color.red : color.red
+
+fill(mPlot, upPlot, title = 'UpTrend Highligter', color = color.new(#36ff00, 0))
+
+fill(mPlot, dnPlot, title = 'DownTrend Highligter', color = color.new(#ff0000, 0))
+
+alertcondition(buySignal, title = 'SuperTrend Buy', message = 'SuperTrend Buy!')
+alertcondition(sellSignal, title = 'SuperTrend Sell', message = 'SuperTrend Sell!')
+changeCond = trend != trend[1]
+
+alertcondition(changeCond, title = 'SuperTrend Direction Change', message = 'SuperTrend has changed direction!')
