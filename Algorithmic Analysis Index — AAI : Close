@@ -1,0 +1,71 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/ 
+// © AliSamiei_1 
+
+//@version=6 
+
+indicator(title = 'Algorithmic Analyzer Index', shorttitle = 'AAI', overlay = true) 
+
+// Corrects price points within specific StdDev band before calculating a smoothed WMA 
+price = input(close, 'Source') 
+length = input.int(2, 'Length', minval = 1) 
+smooth = input.int(2, 'Extra Smooth [1 = None]', minval = 1) 
+
+mult = input.float(0.3, minval = 0.05, maxval = 3, step = 0.05, title = 'Width', inline = 'SD Channel', group = 'Volatility Filter (SD Channel)') 
+sd_len = input.int(5, minval = 1, title = 'Length', inline = 'SD Channel', group = 'Volatility Filter (SD Channel)') 
+
+baseline = ta.wma(price, sd_len) 
+dev = mult * ta.stdev(price, sd_len) 
+upper = baseline + dev 
+lower = baseline - dev 
+
+cprice = price > upper ? upper : price < lower ? lower : price 
+
+REMA = ta.wma(ta.wma(cprice, length), smooth) 
+
+c_up = color.new(#33ff00, 0) 
+c_dn = color.new(#ff1111, 0) 
+
+REMA_up = REMA > REMA[1] 
+
+plot(REMA, title = 'AAI', color = REMA_up ? c_up : c_dn, linewidth = 3) 
+
+// ======================================================================     
+f_ma(source, length, mtype) => 
+    mtype == 'SMA' ? ta.sma(source, length) : mtype == 'EMA' ? ta.ema(source, length) : ta.wma(source, length) 
+    // ======================================================================     
+gr_ma = 'Optional MA\'s' 
+t_ma1 = 'MA #1' 
+t_ma2 = 'MA #2' 
+
+show_ma1 = input.bool(false, t_ma1, inline = t_ma1, group = gr_ma) 
+ma1_type = input.string('SMA', '', options = ['SMA', 'EMA', 'WMA'], inline = t_ma1, group = gr_ma) 
+ma1_source = input.source(close, '', inline = t_ma1, group = gr_ma) 
+ma1_length = input.int(50, '', minval = 1, inline = t_ma1, group = gr_ma) 
+ma1_color = #9c27b0 
+ma1 = f_ma(ma1_source, ma1_length, ma1_type) 
+plot(show_ma1 ? ma1 : na, color = color.new(ma1_color, 0), title = t_ma1, linewidth = 1, display = show_ma1 ? display.all : display.none) 
+
+show_ma2 = input.bool(false, t_ma2, inline = t_ma2, group = gr_ma) 
+ma2_type = input.string('SMA', '', options = ['SMA', 'EMA', 'WMA'], inline = t_ma2, group = gr_ma) 
+ma2_source = input.source(close, '', inline = t_ma2, group = gr_ma) 
+ma2_length = input.int(100, '', minval = 1, inline = t_ma2, group = gr_ma) 
+ma2_color = #1163f6 
+ma2 = f_ma(ma2_source, ma2_length, ma2_type) 
+plot(show_ma2 ? ma2 : na, color = color.new(ma2_color, 0), title = t_ma2, linewidth = 1, display = show_ma2 ? display.all : display.none) 
+
+// ================================================================================================================ 
+// v1: Adding alerts for swing up/down and any swing  
+// ================================================================================================================ 
+
+// Conditions for SwingUp and SwingDn 
+SwingDn = REMA_up[1] and not REMA_up[0] 
+SwingUp = REMA_up[0] and not REMA_up[1] 
+
+// Plot shapes for Long and Short signals based on Swing Up and Swing Down 
+plotshape(SwingDn, title = 'Short', text = 'Short', style = shape.labeldown, textcolor = color.white, size = size.tiny, location = location.abovebar, color = color.red) 
+plotshape(SwingUp, title = 'Long', text = 'Long', style = shape.labelup, textcolor = color.black, size = size.tiny, location = location.belowbar, color = color.lime) 
+
+// Alerts 
+alertcondition(SwingUp, '. AAI Swing Up', 'AAI Swing Up Detected!') // explicit swing up 
+alertcondition(SwingDn, '.. AAI Swing Down', 'AAI Swing Down Detected!') // explicit swing down 
+alertcondition(SwingUp or SwingDn, '... AAI Swing', 'AAI Swing Detected!') // Detect any swing
