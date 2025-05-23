@@ -1,0 +1,61 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © AliSamiei_1
+
+///// 📊 Telegram : @AliSamiei_Page 📊 @TrendAction_Channel
+
+//@version=6
+
+indicator(title = 'Trend Action S&P500 Index', shorttitle = 'S&P500', format = format.price, precision = 2, timeframe = '', timeframe_gaps = true)
+
+ma(source, length, type) =>
+    switch type
+        'SMA' => ta.sma(source, length)
+        'Bollinger Bands' => ta.sma(source, length)
+        'EMA' => ta.ema(source, length)
+        'SMMA (RMA)' => ta.rma(source, length)
+        'WMA' => ta.wma(source, length)
+        'VWMA' => ta.vwma(source, length)
+
+taiLengthInput = input.int(14, minval = 1, title = 'TAI Length', group = 'TAI Settings')
+taiSourceInput = input.source(open, 'Source', group = 'TAI Settings')
+maTypeInput = input.string('SMA', title = 'MA Type', options = ['SMA','Bollinger Bands','EMA','SMMA (RMA)','WMA','VWMA'], group = 'MA Settings')
+maLengthInput = input.int(14, title = 'MA Length', group = 'MA Settings')
+bbMultInput = input.float(2.0, minval = 0.001, maxval = 50, title = 'BB StdDev', group = 'MA Settings')
+
+up = ta.rma(math.max(ta.change(taiSourceInput), 0), taiLengthInput)
+down = ta.rma(-math.min(ta.change(taiSourceInput), 0), taiLengthInput)
+tai = down == 0 ? 100 : up == 0 ? 0 : 100 - 100 / (1 + up / down)
+taiMA = ma(tai, maLengthInput, maTypeInput)
+isBB = maTypeInput == 'Bollinger Bands'
+
+taiPlot = plot(tai,'TAI', linewidth = 2, color = color.white)
+
+plot(taiMA,'TAI-based MA', color = #ffeb3b)
+
+taiUpperBand = hline(100)
+
+taiUpperBand2 = hline(95,'TAI Upper band', color = #ff0000)
+taiUpperBand3 = hline(90,'TAI Upper Band', color = color.orange)
+
+taiUpperBand4 = hline(85,'TAI Upper Band', color = #ffeb3b)
+taiUpperBand5 = hline(00,'ببین کجا لازمه', color = color.white)
+
+midline = hline(50,'TAI Middle Band', color = #0044ff)
+
+taiLowerBand4 = hline(25,'TAI Lower Band', linewidth = 2 , color = #36ff00)
+taiLowerBand3 = hline(20,'TAI Lower Band', linewidth = 2 , color = #36ff00)
+taiLowerBand2 = hline(00,'ببین کجا لازمه', color = color.white)
+
+taiLowerBand = hline(00)
+
+fill(taiUpperBand, taiLowerBand, color = color.rgb(126, 87, 194, 90), title = 'TAI Background Fill')
+
+bbUpperBand = plot(isBB ? taiMA + ta.stdev(tai, maLengthInput) * bbMultInput : na, title = 'Upper Bollinger Band', color = color.green)
+bbLowerBand = plot(isBB ? taiMA - ta.stdev(tai, maLengthInput) * bbMultInput : na, title = 'Lower Bollinger Band', color = color.green)
+
+fill(bbUpperBand, bbLowerBand, color = isBB ? color.new(color.green, 90) : na, title = 'Bollinger Bands Background Fill')
+
+midLinePlot = plot(50, color = na, editable = false, display = display.none)
+
+fill(taiPlot, midLinePlot, 100, 80, top_color = color.new(color.red, 0), bottom_color = color.new(color.red, 100), title = 'Overbought Gradient Fill')
+fill(taiPlot, midLinePlot, 40, 0, top_color = color.new(color.green, 100), bottom_color = color.new(color.green, 0), title = 'Oversold Gradient Fill')
