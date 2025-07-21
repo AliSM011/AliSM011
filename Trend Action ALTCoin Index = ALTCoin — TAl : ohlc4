@@ -45,7 +45,7 @@ taiLowerBand5 = hline(30,'TAI Lower Band', color = color.white)
 taiLowerBand4 = hline(31,'TAI Lower Band', color = #36ff00)
 taiLowerBand3 = hline(25,'TAI Lower Band', color = #36ff00)
 
-taiLowerBand2 = hline(05,'TAI Lower Band', linewidth = 2, color = #5c00ff)
+taiLowerBand2 = hline(00,'TAI Lower Band', linewidth = 2, color = #5c00ff)
 
 taiLowerBand = hline(00)
 
