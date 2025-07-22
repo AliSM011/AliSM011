@@ -1,0 +1,47 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © AliSamiei_1
+
+///// 📊 Telegram : @AliSamiei_Page 📊 @TrendAction_Channel
+
+
+//@version=6
+indicator(title = 'Super ALTCoin Trend Action Index', shorttitle = 'SATAI ALTCoin', overlay = true, format = format.price, precision = 2, timeframe = '' )
+
+Periods = input(title = 'ATR Period', defval = 10)
+src = input(low, title = 'Source')
+Multiplier = input.float(title = 'ATR Multiplier', step = 0.1, defval = 2.0)
+
+changeATR = input(title = 'Change ATR Calculation Method ?', defval = true)
+highlighting = input(title = 'Highlighter On/Off ?', defval = true)
+
+atr2 = ta.sma(ta.tr, Periods)
+atr = changeATR ? ta.atr(Periods) : atr2
+
+up = src - Multiplier * atr
+up1 = nz(up[1], up)
+up := low[1] > up1 ? math.max(up, up1) : up
+
+dn = src + Multiplier * atr
+dn1 = nz(dn[1], dn)
+dn := low[1] < dn1 ? math.min(dn, dn1) : dn
+
+trend = 1
+trend := nz(trend[1], trend)
+trend := trend == -1 and low > dn1 ? 1 : trend == 1 and low < up1 ? -1 : trend
+
+upPlot = plot(trend == 1 ? up : na, title = 'Up Trend', style = plot.style_linebr, linewidth = 2, color = color.new(#36ff00, 0))
+buySignal = trend == 1 and trend[1] == -1
+
+dnPlot = plot(trend == 1 ? na : dn, title = 'Down Trend', style = plot.style_linebr, linewidth = 2, color = #0044ff)
+sellSignal = trend == -1 and trend[1] == 1
+
+plotshape(buySignal, title = 'Buy', text = 'Buy', style = shape.labelup, location = location.belowbar, color = color.new(color.green, 0), textcolor = color.new(color.white, 0), size = size.tiny)
+plotshape(sellSignal, title = 'ALTCoin', text = 'ALT', style = shape.labeldown, location = location.abovebar, color = color.new(#0044ff, 0), textcolor = color.new(color.white, 0), size = size.tiny)
+
+longFillColor = highlighting ? trend == 1 ? #36ff00 : color.green : color.green
+shortFillColor = highlighting ? trend == -1 ? #0044ff: color.blue : color.blue
+
+mPlot = plot(low, title = '')
+
+fill(mPlot, upPlot, title = 'UpTrend Highligter', color = color.new(#36ff00, 0))
+fill(mPlot, dnPlot, title = 'DownTrend Highligter', color = color.new(#0044ff, 0))
